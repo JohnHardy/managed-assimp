@@ -1,99 +1,140 @@
-﻿using System;
+﻿/*
+ * This file is part of The Managed Assimp Wrapper.
+ * 
+ * The Managed Assimp Wrapper is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * The Managed Assimp Wrapper is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with The Managed Assimp Wrapper.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * If you would like to use The Managed Assimp Wrapper under another license, 
+ * contact John Hardy at john at highwire-dtc dot com.
+ * 
+ * Many thanks to the people at Assimp (assimp.sourceforge.net) 
+ * and SlimDX (slimdx.org) for their fantastic work without which, this would not have been
+ * possible.
+ * 
+ */
+
+using System;
 using System.Text;
 
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
+using Assimp.ManagedAssimp;
 using Assimp.ManagedAssimp.Unmanaged;
 
-namespace Assimp.ManagedAssimp
+namespace Assimp
 {
-    /**
-     * <summary>This class wraps the importer functionality of Assimp in a safe manner.</summary>
-     * Please note that this wrapper is not finished and only implements a subset of Assimp's functionality.
-     * @author John Hardy - hardyj2  at the domain of  unix.lancs.ac.uk
-     * @date 21 July 2009
-     * @version 1.0
-     */
+    /// <summary>
+    /// This class wraps the importer functionality of Assimp in a safe manner.
+    /// Please note that this wrapper is not finished and only implements a subset of Assimp's functionality.
+    /// 
+    /// You may need to disable the pInvokeStackImbalance MDA.  It will appear in the Managed Debugging Assistants
+    /// list in the Exceptions dialog box (which is displayed when you click Exceptions on the Debug menu).
+    /// </summary>
+    /// <author>John Hardy - john at highwire-dtc dot com</author>
+    /// <date>21 July 2009</date>
     public abstract class AssimpImporter
     {
-        /**
-         * <summary>Loads a ship from a file using the Assimp library and returns a reference to a 'Scene' object which
-         * contains all the data in that resource.  It is important to note that this will first load the mesh with 
-         * Assimp into 'unmanaged' memory (allocated by the C/C++ DLL) and then copy it into the managed memory allocated by the 'Scene'.
-         * As such, calling this will typically take longer and, for the duration of this method call, use double the memory of the
-         * standard assimp import call.  As such, if speed or memory are of concern to you then consider using the the
-         * unmanaged interface in 'Unmanaged.Assimp'.</summary>
-         * @param sResourcePath The path to the mesh resource.  E.g. "data\characters\yourmum.x"
-         * @param eFlags The postprocessing flags that are specified.  This is (uint) compatible with entries in the PostProcessingFlags enum.
-         * @return A 'Scene' object which represents the loaded resource.  If load failed, null is returned.
-         */
+        /// <summary>
+        /// The path and name of the DLL file.
+        /// </summary>
+        public const String DLLName = "assimp.dll";
+
+        /// <summary>
+        /// Loads a ship from a file using the Assimp library and returns a reference to a 'Scene' object which
+        /// contains all the data in that resource.  It is important to note that this will first load the mesh with
+        /// Assimp into 'unmanaged' memory (allocated by the C/C++ DLL) and then copy it into the managed memory allocated by the 'Scene'.
+        /// As such, calling this will typically take longer and, for the duration of this method call, use double the memory of the
+        /// standard assimp import call.  As such, if speed or memory are of concern to you then consider using the the
+        /// unmanaged interface in 'Unmanaged.Assimp'.
+        /// </summary>
+        /// <param name="sResourcePath">The path to the mesh resource.  E.g. "data\characters\yourmum.x"</param>
+        /// <param name="eFlags">The postprocessing flags that are specified.  This is (uint) compatible with entries in the PostProcessingFlags enum.</param>
+        /// <returns>A 'Scene' object which represents the loaded resource.  If load failed, null is returned.</returns>
         public static Scene readFile(String sResourcePath, aiPostProcessSteps eFlags)
         {
             // Ensure we have a valid path.
             if (sResourcePath == null)
-                return null;
+                throw new ArgumentNullException("The resource path cannot be null.");
 
             if (sResourcePath == "")
-                return null;
-            
-            // Firstly convert the resource string to byte array since .NET uses unicode (that's 16 bit chars).
-            byte[] tResourcePath = UnicodeEncoding.ASCII.GetBytes(sResourcePath);
+                throw new ArgumentNullException("The resource path cannot be null.");
 
             // Drop into unsafe mode so we can access the pointers in the Assimp library.
             unsafe
             {
-                // A pointer to the start of the string resource for assimp to use to load it.
-                fixed (byte* pFileName = &tResourcePath[0])
+                // Declare a pointer to the scene.
+                UnmanagedAssimp.aiScene* pScene;
+
+                try
                 {
-                    // Declare a pointer to the scene.
-                    UnmanagedAssimp.aiScene* pScene;
+                    // Try and load the mesh as specfied above.
+                    //UnmanagedAssimp.aiSetImportPropertyFloat(UnmanagedAssimp.AI_CONFIG_PP_CT_MAX_SMOOTHING_ANGLE, 80.0f);
+                    //UnmanagedAssimp.aiSetImportPropertyFloat(UnmanagedAssimp.AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, 80.0f);
+                        
+                    //UnmanagedAssimp.aiSetImportPropertyInteger(UnmanagedAssimp.AI_CONFIG_IMPORT_ASE_RECONSTRUCT_NORMALS, 1);
 
-                    try
-                    {
-                        // Try and load the mesh as specfied above.
-                        //UnmanagedAssimp.aiSetImportPropertyFloat(UnmanagedAssimp.AI_CONFIG_PP_CT_MAX_SMOOTHING_ANGLE, 45.0f);
-                        //UnmanagedAssimp.aiSetImportPropertyFloat(UnmanagedAssimp.AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, 45.0f);
-                        pScene = UnmanagedAssimp.aiImportFile(pFileName, (uint)eFlags);
-                    }
-                    catch (Exception pError)
-                    {
-                        // Something went wrong so make it the users problem!
-                        throw new Exception("Assimp suffered an error when converting loading the resource into unmanaged memory.  See the inner exception for details.", pError);
-                    }
+                    // This is commented out because we want the pre-transform vertices step to flatten the mesh.
+                    //UnmanagedAssimp.aiSetImportPropertyInteger(UnmanagedAssimp.AI_CONFIG_PP_PTV_KEEP_HIERARCHY, 1);
 
-                    // A C# pointer to the scene.
-                    IntPtr pScenePtr = new IntPtr(pScene);
+                    // This is commented out because we do not normalise the mesh.
+                    //UnmanagedAssimp.aiSetImportPropertyInteger(UnmanagedAssimp.AI_CONFIG_PP_PTV_NORMALIZE, 0);
 
-                    // If the mesh did not load correctly, return null.
-                    if (pScenePtr == IntPtr.Zero)
-                        return null;
+                    // Force Assimp to ignore all lines and points on import.
+                    int iIgnoreFaceTypes = (int)(UnmanagedAssimp.aiPrimitiveType.aiPrimitiveType_LINE | UnmanagedAssimp.aiPrimitiveType.aiPrimitiveType_POINT);
+                    UnmanagedAssimp.aiSetImportPropertyInteger(UnmanagedAssimp.AI_CONFIG_PP_SBP_REMOVE, iIgnoreFaceTypes);
 
-                    try
-                    {
-                        // Now we want to parse the scene with the managed wrapper.
-                        Scene oScene = new Scene(pScenePtr, sResourcePath);
+                    pScene = UnmanagedAssimp.aiImportFile(sResourcePath, (uint)eFlags);
+                }
+                catch (Exception pError)
+                {
+                    throw pError;
+                    // Something went wrong so make it the users problem!
+                    //throw new Exception("Assimp suffered an error when converting loading the resource into unmanaged memory.  See the inner exception for details.", pError);
+                }
 
-                        // Now that is done we can release the Assimp stuff.
-                        UnmanagedAssimp.aiReleaseImport(pScene);
+                // A C# pointer to the scene.
+                IntPtr pScenePtr = new IntPtr(pScene);
 
-                        // Success - return a reference to our newly created scene!
-                        return oScene;
-                    }
-                    catch (Exception pError)
-                    {
-                        // There was an error with the managed library.  Take responsibility for my bad code by forwarding the error to YOU!
-                        throw new Exception("Error converting Assimp resource data to managed memory.  See the inner exception for details.", pError);
-                    }
+                // If the mesh did not load correctly, return null.
+                if (pScenePtr == IntPtr.Zero)
+                    return null;
+
+                try
+                {
+                    // Now we want to parse the scene with the managed wrapper.
+                    Scene oScene = new Scene(pScenePtr, sResourcePath);
+
+                    // Now that is done we can release the Assimp stuff.
+                    UnmanagedAssimp.aiReleaseImport(pScene);
+
+                    // Success - return a reference to our newly created scene!
+                    return oScene;
+                }
+                catch (Exception pError)
+                {
+                    throw pError;
+                    // There was an error with the managed library.  Take responsibility for my bad code by forwarding the error to YOU!
+                    //throw new Exception("Error converting Assimp resource data to managed memory.  See the inner exception for details.", pError);
                 }
             }
         }
 
-        /**
-         * <summary>Returns the error text of the last failed import process.</summary>
-         * @return A textual description of the error that occurred at the last import process. Null if there was no error.
-         */
+        /// <summary>
+        /// Returns the error text of the last failed import process.
+        /// </summary>
+        /// <returns>A textual description of the error that occurred at the last import process. Null if there was no error.</returns>
         public static String getErrorString()
         {
             unsafe
@@ -102,11 +143,11 @@ namespace Assimp.ManagedAssimp
             }
         }
 
-        /**
-         * <summary>Returns whether a given file extension is supported by ASSIMP.  Must include a leading dot '.'. Example: ".3ds", ".md3".</summary>
-         * @param sExtension Extension for which the function queries support.  Must include a leading dot '.'. Example: ".3ds", ".md3"
-         * @return 1 if the extension is supported, 0 otherwise.
-         */
+        /// <summary>
+        /// Returns whether a given file extension is supported by ASSIMP.  Must include a leading dot '.'. Example: ".3ds", ".md3".
+        /// </summary>
+        /// <param name="sExtension">Extension for which the function queries support.  Must include a leading dot '.'. Example: ".3ds", ".md3"</param>
+        /// <returns>1 if the extension is supported, 0 otherwise.</returns>
         public static bool isExtensionSupported(String sExtension)
         {
             // Firstly convert the string to byte array since .NET uses unicode.
@@ -123,11 +164,11 @@ namespace Assimp.ManagedAssimp
             
         }
 
-        /**
-         * <summary>Get a full list of all file extensions generally supported by ASSIMP.</summary>
-         * If a file extension is contained in the list this does, of course, not mean that ASSIMP is able to load all files with this extension.
-         * @return An array of strings, where each string contains a supported format.
-         */
+        /// <summary>
+        /// Get a full list of all file extensions generally supported by ASSIMP.
+        /// If a file extension is contained in the list this does, of course, not mean that ASSIMP is able to load all files with this extension.
+        /// </summary>
+        /// <returns>An array of strings, where each string contains a supported format.</returns>
         public static String[] getExtensionList()
         {
             // Read the extensions.
@@ -138,11 +179,11 @@ namespace Assimp.ManagedAssimp
             return tString.data.Split(';');
         }
 
-        /**
-         * <summary>Save a scene to a file by serialising the managed data.</summary>
-         * @param sPath The path to save the file.
-         * @param oScene A reference to the scene we want to save.
-         */
+        /// <summary>
+        /// Save a scene to a file by serialising the managed data.
+        /// </summary>
+        /// <param name="sPath">The path to save the file.</param>
+        /// <param name="oScene">A reference to the scene we want to save.</param>
         public static void marshalScene(String sFile, Scene oScene)
         {
             IFormatter pFormatter = new BinaryFormatter();
@@ -152,11 +193,11 @@ namespace Assimp.ManagedAssimp
             pOutput.Dispose();
         }
 
-        /**
-         * <summary>Load a scene from a file that was serialised by this code.</summary>
-         * @param sPath The path to load the file from.
-         * @return A reference to the newly loaded scene.  Null on failure.
-         */
+        /// <summary>
+        /// Load a scene from a file that was serialised by this code.
+        /// </summary>
+        /// <param name="sPath">The path to load the file from.</param>
+        /// <returns>A reference to the newly loaded scene.  Null on failure.</returns>
         public static Scene unmarshalScene(String sFile)
         {
             IFormatter pFormatter = new BinaryFormatter();

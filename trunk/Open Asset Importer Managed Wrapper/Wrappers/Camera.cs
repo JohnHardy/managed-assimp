@@ -1,4 +1,29 @@
-﻿using System;
+﻿/*
+ * This file is part of The Managed Assimp Wrapper.
+ * 
+ * The Managed Assimp Wrapper is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * The Managed Assimp Wrapper is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with The Managed Assimp Wrapper.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * If you would like to use The Managed Assimp Wrapper under another license, 
+ * contact John Hardy at john at highwire-dtc dot com.
+ * 
+ * Many thanks to the people at Assimp (assimp.sourceforge.net) 
+ * and SlimDX (slimdx.org) for their fantastic work without which, this would not have been
+ * possible.
+ * 
+ */
+
+using System;
 using System.Runtime.InteropServices;
 
 using Assimp.ManagedAssimp.Unmanaged;
@@ -6,63 +31,62 @@ using Assimp.ManagedAssimp.Unmanaged;
 
 namespace Assimp.ManagedAssimp
 {
-    /**
-     * <summary>Describes a virtual camera in the scene.</summary>
-     * Cameras have a representation in the node graph and can be animated.
-     * @author John Hardy - hardyj2  at the domain of  unix.lancs.ac.uk
-     * @date 20 July 2009
-     * @version 1.0
-     */
+    /// <summary>
+    /// Describes a virtual camera in the scene.
+    /// Cameras have a representation in the node graph and can be animated.
+    /// </summary>
+    /// <author>John Hardy - hardyj2  at the domain of  unix.lancs.ac.uk</author>
+    /// <date>20 July 2009</date>
     [Serializable]
     public class Camera
     {
         #region Properties
-        /**
-         * <summary>The name of the camera.</summary>
-         */
+        /// <summary>
+        /// The name of the camera.
+        /// </summary>
         private String mName;
 
-        /**
-         * <summary>Position of the camera relative to the parent.</summary>
-         */
+        /// <summary>
+        /// Position of the camera relative to the parent.
+        /// </summary>
         private aiVector3D mPosition;
 
-        /**
-         * <summary>'Up' - vector of the camera coordinate system relative to the parent.</summary>
-         */
+        /// <summary>
+        /// 'Up' - vector of the camera coordinate system relative to the parent.
+        /// </summary>
         private aiVector3D mUp;
 
-        /**
-         * <summary>'LookAt' - vector of the camera coordinate system relative to the parent.</summary>
-         */
+        /// <summary>
+        /// 'LookAt' - vector of the camera coordinate system relative to the parent.
+        /// </summary>
         private aiVector3D mLookAt;
 
-        /**
-         * <summary>Half horizontal field of view angle, in radians.</summary>
-         */
+        /// <summary>
+        /// Half horizontal field of view angle, in radians.
+        /// </summary>
         private float mHorizontalFOV;
 
-        /**
-         * <summary>Distance of the near clipping plane from the camera.</summary>
-         */
+        /// <summary>
+        /// Distance of the near clipping plane from the camera.
+        /// </summary>
         private float mClipPlaneNear;
 
-        /**
-         * <summary>Distance of the far clipping plane from the camera.</summary>
-         */
+        /// <summary>
+        /// Distance of the far clipping plane from the camera.
+        /// </summary>
         private float mClipPlaneFar;
 
-        /**
-         * <summary>Screen aspect ratio.</summary>
-         */
+        /// <summary>
+        /// Screen aspect ratio.
+        /// </summary>
         private float mAspect;
         #endregion
 
-        /**
-         * <summary>Constructor which builds a Camera object from a pointer to an aiCamera structure.  As a user, you should not call this by hand.</summary>
-         * <remarks>This will copy the data inside the structure into managed memory.  It *DOES NOT* free the unmanaged memory.</remarks>
-         * @param aiCamera* A pointer to the camera structure in the low level unmanaged wrapper.
-         */
+        /// <summary>
+        /// Constructor which builds a Camera object from a pointer to an aiCamera structure.  As a user, you should not call this by hand.
+        /// <remarks>This will copy the data inside the structure into managed memory.  It *DOES NOT* free the unmanaged memory.</remarks>
+        /// </summary>
+        /// <param name="aiCamera*">A pointer to the camera structure in the low level unmanaged wrapper.</param>
         unsafe internal Camera(IntPtr p_aiCamera)//UnmanagedAssimp.aiCamera* pCamera)
         {
             // Cast the IntPtr to a pointer which contains our camera structure in the unmanaged assimp memory.
@@ -87,103 +111,92 @@ namespace Assimp.ManagedAssimp
             this.mName              = "" + tCamera.mName.data;
         }
 
-        /**
-	     * <summary>Get the screen aspect ratio of the camera</summary>
-	     * 
-	     * This is the ration between the width and the height of the screen.
-	     * Typical values are 4/3, 1/2 or 1/1. This value is 0 if the aspect ratio
-	     * is not defined in the source file. 0 is also the default value.
-	     */
+        /// <summary>
+        /// Get the screen aspect ratio of the camera
+        /// This is the ration between the width and the height of the screen.
+        /// Typical values are 4/3, 1/2 or 1/1. This value is 0 if the aspect ratio
+        /// is not defined in the source file. 0 is also the default value.
+        /// </summary>
         public float GetAspect()
         {
 		    return mAspect;
 	    }
 
-        /**
-         * <summary>Get the distance of the far clipping plane from the camera.</summary>
-         * 
-         * The far clipping plane must, of course, be farer away than the near
-         * clipping plane. The default value is 1000.f. The radio between the near
-         * and the far plane should not be too large (between 1000-10000 should be
-         * ok) to avoid floating-point inaccuracies which could lead to z-fighting.
-         */
+        /// <summary>
+        /// Get the distance of the far clipping plane from the camera.
+        /// The far clipping plane must, of course, be farer away than the near
+        /// clipping plane. The default value is 1000.f. The radio between the near
+        /// and the far plane should not be too large (between 1000-10000 should be
+        /// ok) to avoid floating-point inaccuracies which could lead to z-fighting.
+        /// </summary>
         public float GetFarClipPlane()
         {
 		    return mClipPlaneFar;
 	    }
 
-        /**
-         * <summary>Get the distance of the near clipping plane from the camera.</summary>
-         * 
-         * The value may not be 0.f (for arithmetic reasons to prevent a division
-         * through zero). The default value is 0.1f.
-         */
+        /// <summary>
+        /// Get the distance of the near clipping plane from the camera.
+        /// The value may not be 0.f (for arithmetic reasons to prevent a division
+        /// through zero). The default value is 0.1f.
+        /// </summary>
         public float GetNearClipPlane()
         {
 		    return mClipPlaneNear;
 	    }
 
-        /**
-         * <summary>Half horizontal field of view angle, in radians.</summary>
-         * 
-         * The field of view angle is the angle between the center line of the
-         * screen and the left or right border. The default value is 1/4PI.
-         */
+        /// <summary>
+        /// Half horizontal field of view angle, in radians.
+        /// The field of view angle is the angle between the center line of the
+        /// screen and the left or right border. The default value is 1/4PI.
+        /// </summary>
         public float GetHorizontalFOV()
         {
 		    return mHorizontalFOV;
 	    }
 
-        /**
-         * <summary>Returns the 'LookAt' - vector of the camera coordinate system relative to
-         * the coordinate space defined by the corresponding node.</summary>
-         * 
-         * This is the viewing direction of the user. The default value is 0|0|1.
-         * The vector may be normalized, but it needn't.
-         * 
-         * @return component order: x,y,z
-         */
+        /// <summary>
+        /// Returns the 'LookAt' - vector of the camera coordinate system relative to
+        /// the coordinate space defined by the corresponding node.
+        /// This is the viewing direction of the user. The default value is 0|0|1.
+        /// The vector may be normalized, but it needn't.
+        /// </summary>
+        /// <returns>component order: x,y,z</returns>
         public aiVector3D GetLookAt()
         {
 		    return mLookAt;
 	    }
 
-        /**
-         * <summary>Get the 'Up' - vector of the camera coordinate system relative to the
-         * coordinate space defined by the corresponding node.</summary>
-         * 
-         * The 'right' vector of the camera coordinate system is the cross product
-         * of the up and lookAt vectors. The default value is 0|1|0. The vector may
-         * be normalized, but it needn't.
-         * 
-         * @return component order: x,y,z
-         */
+        /// <summary>
+        /// Get the 'Up' - vector of the camera coordinate system relative to the
+        /// coordinate space defined by the corresponding node.
+        /// The 'right' vector of the camera coordinate system is the cross product
+        /// of the up and lookAt vectors. The default value is 0|1|0. The vector may
+        /// be normalized, but it needn't.
+        /// </summary>
+        /// <returns>component order: x,y,z</returns>
         public aiVector3D GetUp()
         {
 		    return mUp;
 	    }
 
-        /**
-         * <summary>Get the position of the camera relative to the coordinate space defined
-         * by the corresponding node.</summary>
-         * 
-         * The default value is 0|0|0.
-         * 
-         * @return component order: x,y,z
-         */
+        /// <summary>
+        /// Get the position of the camera relative to the coordinate space defined
+        /// by the corresponding node.
+        /// The default value is 0|0|0.
+        /// </summary>
+        /// <returns>component order: x,y,z</returns>
         public aiVector3D GetPosition()
         {
 		    return mPosition;
 	    }
 
-        /**
-         * <summary>Returns the name of the camera.</summary>
-         * 
-         * There must be a node in the scene graph with the same name. This node
-         * specifies the position of the camera in the scene hierarchy and can be
-         * animated. The local transformation information of the camera is relative
-         * to the coordinate space defined by this node.
-         */
+        /// <summary>
+        /// Returns the name of the camera.
+        /// There must be a node in the scene graph with the same name. This node
+        /// specifies the position of the camera in the scene hierarchy and can be
+        /// animated. The local transformation information of the camera is relative
+        /// to the coordinate space defined by this node.
+        /// </summary>
         public String GetName()
         {
 		    return mName;

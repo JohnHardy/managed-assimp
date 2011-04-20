@@ -1,39 +1,71 @@
-﻿using System;
+﻿/*
+ * This file is part of The Managed Assimp Wrapper.
+ * 
+ * The Managed Assimp Wrapper is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * The Managed Assimp Wrapper is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with The Managed Assimp Wrapper.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * If you would like to use The Managed Assimp Wrapper under another license, 
+ * contact John Hardy at john at highwire-dtc dot com.
+ * 
+ * Many thanks to the people at Assimp (assimp.sourceforge.net) 
+ * and SlimDX (slimdx.org) for their fantastic work without which, this would not have been
+ * possible.
+ * 
+ */
+
+using System;
 using System.Runtime.InteropServices;
 
 using Assimp.ManagedAssimp.Unmanaged;
 
 namespace Assimp.ManagedAssimp
 {
-    /**
-     * <summary>An animation consists of keyframe data for a number of bones. For each bone affected by the animation a separate series of data is given.</summary>
-     * There can be multiple animations in a single scene.
-     * @author John Hardy - hardyj2  at the domain of  unix.lancs.ac.uk
-     * @date 20 July 2009
-     * @version 1.0
-     */
+    /// <summary>
+    /// An animation consists of keyframe data for a number of bones. For each bone affected by the animation a separate series of data is given.
+    /// There can be multiple animations in a single scene.
+    /// </summary>
+    /// <author>John Hardy - hardyj2  at the domain of  unix.lancs.ac.uk</author>
+    /// <date>20 July 2009</date>
     [Serializable]
     public class Animation
     {
         #region Properties.
-        /** <summary>The name of the animation.</summary> */
+        /// <summary>
+        /// The name of the animation.
+        /// </summary>
         private String sName = "";
 
-        /** <summary>Duration of the animation in ticks.</summary> */
+        /// <summary>
+        /// Duration of the animation in ticks.
+        /// </summary>
         private double fDuration = 0.0;
 
-        /**  <summary>Ticks per second. 0 if not specified in the imported file.</summary> */
+        /// <summary>
+        ///  Ticks per second. 0 if not specified in the imported file.
+        /// </summary>
         private double fTicksPerSecond = 0.0;
 
-        /** <summary>Bone animation channels.</summary> */
+        /// <summary>
+        /// Bone animation channels.
+        /// </summary>
         private NodeAnimation[] tChannels = null;
         #endregion
 
-        /**
-         * <summary>Constructor which builds an animation object from a pointer to an aiAnimation structure.  As a user, you should not call this by hand.</summary>
-         * <remarks>This will copy the data inside the structure into managed memory.  It *DOES NOT* free the unmanaged memory.</remarks>
-         * @param p_aiAnimation* A pointer to the animation structure in the low level unmanaged wrapper.
-         */
+        /// <summary>
+        /// Constructor which builds an animation object from a pointer to an aiAnimation structure.  As a user, you should not call this by hand.
+        /// <remarks>This will copy the data inside the structure into managed memory.  It *DOES NOT* free the unmanaged memory.</remarks>
+        /// </summary>
+        /// <param name="p_aiAnimation*">A pointer to the animation structure in the low level unmanaged wrapper.</param>
         unsafe internal Animation(IntPtr p_aiAnimation)
         {
             // Unmarshal our structure into (what will be for us, some temporary) managed memory.  This is naturally, automatically released when we exit the function.
@@ -63,47 +95,47 @@ namespace Assimp.ManagedAssimp
             }
         }
 
-	    /**
-	     * <summary>Returns the name of the animation channel.</summary>
-	     * @return If the modeling package this data was exported from does support
-	     * only a single animation channel, this name is usually <code>""</code>.
-	     */
+        /// <summary>
+        /// Returns the name of the animation channel.
+        /// </summary>
+        /// <returns>If the modeling package this data was exported from does support</returns>
+        /// only a single animation channel, this name is usually <code>""</code>.
 	    public String getName()
         {
             return sName;
 	    }
 
-	    /**
-	     * <summary>Returns the total duration of the animation, in ticks.</summary>
-	     * @return Total duration
-	     */
+        /// <summary>
+        /// Returns the total duration of the animation, in ticks.
+        /// </summary>
+        /// <returns>Total duration</returns>
 	    public double getDuration()
         {
 		    return fDuration;
 	    }
 
-	    /**
-	     * <summary>Returns the ticks per second count.</summary>
-	     * @return 0 if not specified in the imported file
-	     */
+        /// <summary>
+        /// Returns the ticks per second count.
+        /// </summary>
+        /// <returns>0 if not specified in the imported file</returns>
 	    public double getTicksPerSecond()
         {
 		    return fTicksPerSecond;
 	    }
 
-	    /**
-	     * <summary>Returns the number of bone animation channels.</summary>
-	     * @return This value is never 0
-	     */
+        /// <summary>
+        /// Returns the number of bone animation channels.
+        /// </summary>
+        /// <returns>This value is never 0</returns>
 	    public int getNumNodeAnimationChannels()
         {
 		    return tChannels.Length;
 	    }
 
-	    /**
-	     * <summary>Returns the list of all bone animation channels.</summary>
-	     * @return This value is never <code>null</code>
-	     */
+        /// <summary>
+        /// Returns the list of all bone animation channels.
+        /// </summary>
+        /// <returns>This value is never <code>null</code></returns>
         public NodeAnimation[] getNodeAnimationChannels()
         {
             return tChannels;

@@ -1,4 +1,29 @@
-﻿using System;
+﻿/*
+ * This file is part of The Managed Assimp Wrapper.
+ * 
+ * The Managed Assimp Wrapper is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * The Managed Assimp Wrapper is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with The Managed Assimp Wrapper.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * If you would like to use The Managed Assimp Wrapper under another license, 
+ * contact John Hardy at john at highwire-dtc dot com.
+ * 
+ * Many thanks to the people at Assimp (assimp.sourceforge.net) 
+ * and SlimDX (slimdx.org) for their fantastic work without which, this would not have been
+ * possible.
+ * 
+ */
+
+using System;
 using System.Runtime.InteropServices;
 
 using Assimp.ManagedAssimp.Unmanaged;
@@ -6,37 +31,46 @@ using Assimp.ManagedAssimp.Unmanaged;
 
 namespace Assimp.ManagedAssimp
 {
-    /**
-     * <summary>A node in the imported scene hierarchy.  Each node has name, a single parent node (except for the root node), a transformation relative to its parent and possibly several child nodes.  Simple file formats don't support hierarchical structures, for these formats the imported scene does consist of only a single root node with no childs.  Multiple meshes can be assigned to a single node.</summary>
-     * @author John Hardy - hardyj2  at the domain of  unix.lancs.ac.uk
-     * @date 20 July 2009
-     * @version 1.0
-     */
+    /// <summary>
+    /// A node in the imported scene hierarchy.  Each node has name, a single parent node (except for the root node), a transformation relative to its parent and possibly several child nodes.  Simple file formats don't support hierarchical structures, for these formats the imported scene does consist of only a single root node with no childs.  Multiple meshes can be assigned to a single node.
+    /// </summary>
+    /// <author>John Hardy - hardyj2  at the domain of  unix.lancs.ac.uk</author>
+    /// <date>20 July 2009</date>
     [Serializable]
     public class Node
     {
         #region Properties
-        /** <summary>The name of the node.  The name may be empty but all nodes which need to be accessed afterwards by bones and animations are usually named.  Nodes can have the same name, but nodes which are referenced by bones/animasions HAVE to be unique.</summary> */
+        /// <summary>
+        /// The name of the node.  The name may be empty but all nodes which need to be accessed afterwards by bones and animations are usually named.  Nodes can have the same name, but nodes which are referenced by bones/animasions HAVE to be unique.
+        /// </summary>
         private String sName        = null;
 
-        /** <summary>The transformation relative to the node's parent.</summary> */
+        /// <summary>
+        /// The transformation relative to the node's parent.
+        /// </summary>
         private aiMatrix4x4 mTransformation;
 
-        /** <summary>Parent node. "Node* mParent" NULL if this node is the root node.</summary> */
+        /// <summary>
+        /// Parent node. "Node* mParent" NULL if this node is the root node.
+        /// </summary>
         private Node mParent        = null;
 
-        /** <summary>The child nodes of this node. "Node** mChildren" NULL if mNumChildren is 0.  Double Pointer...</summary> */
+        /// <summary>
+        /// The child nodes of this node. "Node** mChildren" NULL if mNumChildren is 0.  Double Pointer...
+        /// </summary>
         private Node[] tChildren    = null;
 
-        /** <summary>The meshes of this node. Each entry is an index into the mesh.</summary> */
+        /// <summary>
+        /// The meshes of this node. Each entry is an index into the mesh.
+        /// </summary>
         private uint[] tMeshes      = null;
         #endregion
 
-        /**
-         * <summary>Constructor which builds a Node object from a pointer to an aiNode structure.  As a user, you should not call this by hand.</summary>
-         * <remarks>This will copy the data inside the structure into managed memory.  It *DOES NOT* free the unmanaged memory.</remarks>
-         * @param aiNode* A pointer to the face structure in the low level unmanaged wrapper.
-         */
+        /// <summary>
+        /// Constructor which builds a Node object from a pointer to an aiNode structure.  As a user, you should not call this by hand.
+        /// <remarks>This will copy the data inside the structure into managed memory.  It *DOES NOT* free the unmanaged memory.</remarks>
+        /// </summary>
+        /// <param name="aiNode*">A pointer to the face structure in the low level unmanaged wrapper.</param>
         unsafe internal Node(IntPtr p_aiNode, Node pParent)
         {
             // Unmarshal our structure into (what will be for us, some temporary) managed memory.  This is naturally, automatically released when we exit the function.
@@ -76,69 +110,67 @@ namespace Assimp.ManagedAssimp
             tMeshes = UnmanagedAssimp.MarshalUintArray(tNode.mMeshes, tNode.mNumMeshes);
         }
 
-        /**
-         * <summary>Return a string representation fo this node.</summary>
-         * @return A string representation.
-         */
+        /// <summary>
+        /// Return a string representation fo this node.
+        /// </summary>
+        /// <returns>A string representation.</returns>
         public override string ToString()
         {
             return "<node name='"+this.sName+"' numchildren='"+((this.tChildren == null) ? 0 : this.tChildren.Length)+"' parent='"+((this.mParent == null) ? "null" : this.mParent.getName())+ "' />";
         }
 
-	    /**
-	     * <summary>Constructs a new node and initializes it.
-	     * @param parentNode Parent node or null for root nodes
-	     */
+        /// <summary>
+        /// Constructs a new node and initializes it.
+        /// </summary>
+        /// <param name="parentNode">Parent node or null for root nodes</param>
 	    public Node(Node parentNode) {
 
 		    this.mParent = parentNode;
 	    }
 
-	    /**
-	     * Returns the number of meshes of this node.
-	     * @return Number of meshes
-	     */
+        /// <summary>
+        /// Returns the number of meshes of this node.
+        /// </summary>
+        /// <returns>Number of meshes</returns>
 	    public int getNumMeshes()
         {
 		    return tMeshes == null ? 0 : tMeshes.Length;
 	    }
 
-	    /**
-	     * Get a list of all meshes of this node
-	     * @return Array containing indices into the Scene's mesh list. If there are no meshes, the array is <code>null</code>
-	     */
+        /// <summary>
+        /// Get a list of all meshes of this node
+        /// </summary>
+        /// <returns>Array containing indices into the Scene's mesh list. If there are no meshes, the array is <code>null</code></returns>
 	    public uint[] getMeshes()
         {
 		    return tMeshes;
 	    }
 
-	    /**
-	     * Get the local transformation matrix of the node in row-major order:
-	     * <code>
-	     * a1 a2 a3 a4 (the translational part of the matrix is stored
-	     * b1 b2 b3 b4  in (a4|b4|c4))
-	     * c1 c2 c3 c4
-	     * d1 d2 d3 d4
-         * </code>
-	     * 
-	     * @return Row-major transformation matrix
-	     */
+        /// <summary>
+        /// Get the local transformation matrix of the node in row-major order:
+        /// <code>
+        /// a1 a2 a3 a4 (the translational part of the matrix is stored
+        /// b1 b2 b3 b4  in (a4|b4|c4))
+        /// c1 c2 c3 c4
+        /// d1 d2 d3 d4
+        /// </code>
+        /// </summary>
+        /// <returns>Row-major transformation matrix</returns>
 	    public aiMatrix4x4 getTransformRowMajor()
         {
 		    return mTransformation;
 	    }
 
-	    /**
-	     * Get the local transformation matrix of the node in column-major order:
-	     * <code>
-	     * a1 b1 c1 d1 (the translational part of the matrix is stored
-	     * a2 b2 c2 d2  in (a4|b4|c4))
-	     * a3 b3 c3 d3
-	     * a4 b4 c4 d4
-         * </code>
-	     * 
-	     * @return Column-major transformation matrix
-	     */
+        /// <summary>
+        /// Get the local transformation matrix of the node in column-major order:
+        /// <code>
+        /// a1 b1 c1 d1 (the translational part of the matrix is stored
+        /// a2 b2 c2 d2  in (a4|b4|c4))
+        /// a3 b3 c3 d3
+        /// a4 b4 c4 d4
+        /// </code>
+        /// </summary>
+        /// <returns>Column-major transformation matrix</returns>
 	    public aiMatrix4x4 getTransformColumnMajor()
         {
             throw new NotImplementedException("Perhaps implementing this would be a good idea..  Sorry.");
@@ -146,49 +178,49 @@ namespace Assimp.ManagedAssimp
 		    //return m.transpose();
 	    }
 
-	    /**
-	     * <summary>Get the name of the node. The name might be empty (length of zero) but
-	     * all nodes which need to be accessed afterwards by bones or anims are
-	     * usually named.</summary>
-	     * @return The name of this node.
-	     */
+        /// <summary>
+        /// Get the name of the node. The name might be empty (length of zero) but
+        /// all nodes which need to be accessed afterwards by bones or anims are
+        /// usually named.
+        /// </summary>
+        /// <returns>The name of this node.</returns>
 	    public String getName()
         {
 		    return sName;
 	    }
 
-	    /**
-	     * <summary>Get the list of all child nodes of *this* node.</summary>
-	     * @return List of children. May be empty.
-	     */
+        /// <summary>
+        /// Get the list of all child nodes of *this* node.
+        /// </summary>
+        /// <returns>List of children. May be empty.</returns>
 	    public Node[] getChildren()
         {
 		    return tChildren;
 	    }
 
-	    /**
-	     * <summary>Get the number of child nodes of *this* node.</summary>
-	     * @return The number of child nodes of *this* node. May be 0.
-	     */
+        /// <summary>
+        /// Get the number of child nodes of *this* node.
+        /// </summary>
+        /// <returns>The number of child nodes of *this* node. May be 0.</returns>
 	    public int getNumChildren()
         {
 		    return tChildren == null ? 0 : tChildren.Length;
 	    }
 
-	    /**
-	     * <summary>Get the parent node of the node</summary>
-	     * @return Parent node
-	     */
+        /// <summary>
+        /// Get the parent node of the node
+        /// </summary>
+        /// <returns>Parent node</returns>
 	    public Node getParent()
         {
 		    return mParent;
 	    }
 
-	    /**
-	     * <summary>Searches this node and recursively all sub nodes for a node with a specific name.</summary>
-	     * @param _name Name of the node to search for
-	     * @return Either a reference to the node or <code>null</code> if no node with this name was found.
-	     */
+        /// <summary>
+        /// Searches this node and recursively all sub nodes for a node with a specific name.
+        /// </summary>
+        /// <param name="_name">Name of the node to search for</param>
+        /// <returns>Either a reference to the node or <code>null</code> if no node with this name was found.</returns>
 	    public Node findNode(String sName)
         {
             // Are we the node you're looking for?
@@ -209,25 +241,13 @@ namespace Assimp.ManagedAssimp
 		    return null;
 	    }
 
-        /**
-         * <summary>Print all nodes to the console recursively. This is a debugging utility.</summary>
-         * This will print the nodes in the format:
-         * @param sPrefix The prefix to attach for this generation.
-         * Parent
-         * <code>
-         * |Mesh @ 0
-         * |Mesh @ 1
-         * |-- Child 1
-         * |-- |Mesh @ 2
-         * |-- |Mesh @ 3
-         * |-- Child 2
-         * |-- |Mesh @ 4
-         * |-- |Mesh @ 5
-         * |-- |-- Child 3
-         * |-- |-- |Mesh @ 6
-         * |-- |-- |Mesh @ 7
-         * </code>
-         */
+        /// <summary>
+        /// Print all nodes to the console recursively. This is a debugging utility.
+        /// This will print the nodes in the format:
+        /// </summary>
+        /// <param name="sPrefix">The prefix to attach for this generation.</param>
+        /// Parent
+        /// <code>
         public void printNodes(String sPrefix)
         {
             // Print our name.

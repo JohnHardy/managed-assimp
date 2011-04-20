@@ -1,39 +1,71 @@
-﻿using System;
+﻿/*
+ * This file is part of The Managed Assimp Wrapper.
+ * 
+ * The Managed Assimp Wrapper is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * The Managed Assimp Wrapper is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with The Managed Assimp Wrapper.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * If you would like to use The Managed Assimp Wrapper under another license, 
+ * contact John Hardy at john at highwire-dtc dot com.
+ * 
+ * Many thanks to the people at Assimp (assimp.sourceforge.net) 
+ * and SlimDX (slimdx.org) for their fantastic work without which, this would not have been
+ * possible.
+ * 
+ */
+
+using System;
 using System.Runtime.InteropServices;
 
 using Assimp.ManagedAssimp.Unmanaged;
 
 namespace Assimp.ManagedAssimp
 {
-    /**
-     * <summary>Represents an embedded texture. Sometimes textures are not referenced with a path, instead they are directly embedded into the model file.</summary>
-     * Example file formats doing this include MDL3, MDL5 and MDL7 (3D GameStudio). Embedded textures are converted to an array of color values (RGBA).
-     * @author John Hardy - hardyj2  at the domain of  unix.lancs.ac.uk
-     * @date 20 July 2009
-     * @version 1.0
-     */
+    /// <summary>
+    /// Represents an embedded texture. Sometimes textures are not referenced with a path, instead they are directly embedded into the model file.
+    /// Example file formats doing this include MDL3, MDL5 and MDL7 (3D GameStudio). Embedded textures are converted to an array of color values (RGBA).
+    /// </summary>
+    /// <author>John Hardy - hardyj2  at the domain of  unix.lancs.ac.uk</author>
+    /// <date>20 July 2009</date>
     [Serializable]
     public class Texture
     {
         #region Properties.
-        /** <summary>The width of the texture.</summary> */
+        /// <summary>
+        /// The width of the texture.
+        /// </summary>
         private uint iWidth = 0;
 
-        /** <summary>The height of the texture.</summary> */
+        /// <summary>
+        /// The height of the texture.
+        /// </summary>
         private uint iHeight = 0;
 
-        /**  <summary>Does this texture hiave an alpha channel.  0xFFFFFFFF means already computed. </summary> */
+        /// <summary>
+        ///  Does this texture hiave an alpha channel.  0xFFFFFFFF means already computed. 
+        /// </summary>
         private uint iNeedAlpha = 0xFFFFFFFF;
 
-        /** <summary>Texture data byte array.</summary> */
+        /// <summary>
+        /// Texture data byte array.
+        /// </summary>
         private aiTexel[] tTexels = null;
         #endregion
 
-        /**
-         * <summary>Constructor which builds a Texture object from a pointer to an aiTexture structure.  As a user, you should not call this by hand.</summary>
-         * <remarks>This will copy the data inside the structure into managed memory.  It *DOES NOT* free the unmanaged memory.</remarks>
-         * @param p_aiAnimation* A pointer to the texture structure in the low level unmanaged wrapper.
-         */
+        /// <summary>
+        /// Constructor which builds a Texture object from a pointer to an aiTexture structure.  As a user, you should not call this by hand.
+        /// <remarks>This will copy the data inside the structure into managed memory.  It *DOES NOT* free the unmanaged memory.</remarks>
+        /// </summary>
+        /// <param name="p_aiAnimation*">A pointer to the texture structure in the low level unmanaged wrapper.</param>
         unsafe internal Texture(IntPtr p_aiTexture)
         {
             // Unmarshal our structure into (what will be for us, some temporary) managed memory.  This is naturally, automatically released when we exit the function.
@@ -52,28 +84,28 @@ namespace Assimp.ManagedAssimp
             tTexels = UnmanagedAssimp.MarshalArray<aiTexel>(new IntPtr(tTexture.pcData), tTexture.mWidth * tTexture.mHeight);
         }
 
-	    /**
-	     * <summary>Retrieve the height of the texture image.</summary>
-	     * @return Height, in pixels
-	     */
+        /// <summary>
+        /// Retrieve the height of the texture image.
+        /// </summary>
+        /// <returns>Height, in pixels</returns>
 	    public uint getHeight()
         {
 		    return iHeight;
 	    }
 
-	    /**
-	     * <summary>Retrieve the width of the texture image.</summary>
-	     * @return Width, in pixels
-	     */
+        /// <summary>
+        /// Retrieve the width of the texture image.
+        /// </summary>
+        /// <returns>Width, in pixels</returns>
 	    public uint getWidth()
         {
 		    return iWidth;
 	    }
 
-	    /**
-	     * <summary>Returns whether the texture uses its alpha channel.</summary>
-	     * @return <code>true</code> if at least one pixel has an alpha value below 0xFF.
-	     */
+        /// <summary>
+        /// Returns whether the texture uses its alpha channel.
+        /// </summary>
+        /// <returns><code>true</code> if at least one pixel has an alpha value below 0xFF.</returns>
 	    public bool hasAlphaChannel()
         {
             // Have we already computed the alpha value and have texture data?
@@ -99,12 +131,12 @@ namespace Assimp.ManagedAssimp
             return (iNeedAlpha == 0x01);
 	    }
 
-	    /**
-	     * <summary>Get the color at a given position of the texture.</summary>
-	     * @param x X coordinate, zero based
-	     * @param y Y coordinate, zero based
-	     * @return aiTexel colour at this position
-	     */
+        /// <summary>
+        /// Get the color at a given position of the texture.
+        /// </summary>
+        /// <param name="x">X coordinate, zero based</param>
+        /// <param name="y">Y coordinate, zero based</param>
+        /// <returns>aiTexel colour at this position</returns>
 	    public aiTexel getPixel(int x, int y)
         {
 		    if (x < iWidth && y < iHeight)
@@ -112,21 +144,21 @@ namespace Assimp.ManagedAssimp
             throw new IndexOutOfRangeException("Array index '"+y * iWidth + x+"' is less than texture bounds '"+iWidth*iHeight+"'");
 	    }
 
-	    /**
-	     * <summary>Get a pointer to the color buffer of the texture.</summary>
-	     * @return Array of aiTexel, size: width * height
-	     */
+        /// <summary>
+        /// Get a pointer to the color buffer of the texture.
+        /// </summary>
+        /// <returns>Array of aiTexel, size: width * height</returns>
 	    public aiTexel[] getColorArray()
         {
 		    return tTexels;
 	    }
 
-	    /**
-	     * <summary>Convert the texture into a <code>System.Drawing.Bitmap</code>.</summary>
-         * This will create a new bitmap instance.
-         * This is perhaps the slowest method in the entire world ever.
-	     * @return Valid <code>System.Drawing.Bitmap</code> object containing a copy of the texture image.  The bitmap is in the format ARGB.
-	     */
+        /// <summary>
+        /// Convert the texture into a <code>System.Drawing.Bitmap</code>.
+        /// This will create a new bitmap instance.
+        /// This is perhaps the slowest method in the entire world ever.
+        /// </summary>
+        /// <returns>Valid <code>System.Drawing.Bitmap</code> object containing a copy of the texture image.  The bitmap is in the format ARGB.</returns>
 	    public unsafe System.Drawing.Bitmap toBitmap()
         {
             // Check we have data..

@@ -1,84 +1,129 @@
-﻿using System;
+﻿/*
+ * This file is part of The Managed Assimp Wrapper.
+ * 
+ * The Managed Assimp Wrapper is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * The Managed Assimp Wrapper is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with The Managed Assimp Wrapper.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * If you would like to use The Managed Assimp Wrapper under another license, 
+ * contact John Hardy at john at highwire-dtc dot com.
+ * 
+ * Many thanks to the people at Assimp (assimp.sourceforge.net) 
+ * and SlimDX (slimdx.org) for their fantastic work without which, this would not have been
+ * possible.
+ * 
+ */
+
+using System;
 using System.Runtime.InteropServices;
 
 using Assimp.ManagedAssimp.Unmanaged;
 
 namespace Assimp.ManagedAssimp
 {
-    /**
-     * <summary>A mesh represents a part of the whole scene geometry. It references exactly
-     * one material and can this be drawn in a single draw call.</summary>
-     * <p/>
-     * It usually consists of a number of vertices and a series of primitives/faces
-     * referencing the vertices. In addition there might be a series of bones, each
-     * of them addressing a number of vertices with a certain weight. Vertex data is
-     * presented in channels with each channel containing a single per-vertex
-     * information such as a set of texture coordinates or a normal vector.
-     * <p/>
-     * Note that not all mesh data channels must be there. E.g. most models don't
-     * contain vertex colors so this data channel is mostly not filled.
-     * 
-     * @author John Hardy
-     * @date 20 July 2009
-     * @version 1.0
-     */
+    /// <summary>
+    /// A mesh represents a part of the whole scene geometry. It references exactly
+    /// one material and can this be drawn in a single draw call.
+    /// <p/>
+    /// It usually consists of a number of vertices and a series of primitives/faces
+    /// referencing the vertices. In addition there might be a series of bones, each
+    /// of them addressing a number of vertices with a certain weight. Vertex data is
+    /// presented in channels with each channel containing a single per-vertex
+    /// information such as a set of texture coordinates or a normal vector.
+    /// <p/>
+    /// Note that not all mesh data channels must be there. E.g. most models don't
+    /// contain vertex colors so this data channel is mostly not filled.
+    /// </summary>
+    /// <author>John Hardy</author>
+    /// <date>20 July 2009</date>
     [Serializable]
     public class Mesh
     {
         #region Constants
-	    /**
-	     * <summary>Defines the maximum number of UV(W) channels that are available for a
-	     * mesh. If a loader finds more channels in a file, it skips them.</summary>
-	     */
+    /// <summary>
+    /// Defines the maximum number of UV(W) channels that are available for a
+    /// mesh. If a loader finds more channels in a file, it skips them.
+    /// </summary>
 	    public const int MAX_NUMBER_OF_TEXTURECOORDS    = UnmanagedAssimp.aiMesh.AI_MAX_NUMBER_OF_TEXTURECOORDS;//0x4;
 
-	    /**
-	     * <summary>Defines the maximum number of vertex color channels that are available
-	     * for a mesh. If a loader finds more channels in a file, it skips them.</summary>
-	     */
+    /// <summary>
+    /// Defines the maximum number of vertex color channels that are available
+    /// for a mesh. If a loader finds more channels in a file, it skips them.
+    /// </summary>
 	    public const int MAX_NUMBER_OF_COLOR_SETS       = UnmanagedAssimp.aiMesh.AI_MAX_NUMBER_OF_COLOR_SETS;//0x4;
         #endregion
 
         #region Properties
-        /** <summary>Contains normal vectors in a continuous float array, xyz order. Can't be <code>null</code></summary> */
+        /// <summary>
+        /// Contains normal vectors in a continuous float array, xyz order. Can't be <code>null</code>
+        /// </summary>
         private aiVector3D[] tVertices      = null;
 
-        /** <summary>Contains normal vectors in a continuous float array, xyz order. Can be <code>null</code></summary> */
+        /// <summary>
+        /// Contains normal vectors in a continuous float array, xyz order. Can be <code>null</code>
+        /// </summary>
         private aiVector3D[] tNormals       = null;
 
-        /** <summary>Contains tangent vectors in a continuous float array, xyz order. Can be <code>null</code></summary> */
+        /// <summary>
+        /// Contains tangent vectors in a continuous float array, xyz order. Can be <code>null</code>
+        /// </summary>
         private aiVector3D[] tTangents      = null;
 
-        /** <summary>Contains bitangent vectors in a continuous float array, xyz order. Can be <code>null</code></summary> */
+        /// <summary>
+        /// Contains bitangent vectors in a continuous float array, xyz order. Can be <code>null</code>
+        /// </summary>
         private aiVector3D[] tBitangents    = null;
 
-        /** <summary>Contains UV coordinate channels in a continuous float array, uvw order. Unused channels are set to <code>null</code>.</summary> */
+        /// <summary>
+        /// Contains UV coordinate channels in a continuous float array, uvw order. Unused channels are set to <code>null</code>.
+        /// </summary>
         private aiVector3D[][] tTextures    = null;//new aiVector3D[UnmanagedAssimp.aiMesh.AI_MAX_NUMBER_OF_TEXTURECOORDS][];
 
-        /** <summary>Contains vertex color channels in a continuous float array, rgba order. Unused channels are set to <code>null</code>.</summary> */
+        /// <summary>
+        /// Contains vertex color channels in a continuous float array, rgba order. Unused channels are set to <code>null</code>.
+        /// </summary>
         private aiColor4D[][] tColors       = null;//new aiColor4D[UnmanagedAssimp.aiMesh.AI_MAX_NUMBER_OF_COLOR_SETS][];
 
-        /** <summary>Defines the number of relevant vector components for each UV channel. Typically the value is 2 or 3.</summary> */
+        /// <summary>
+        /// Defines the number of relevant vector components for each UV channel. Typically the value is 2 or 3.
+        /// </summary>
         private uint[] tNumUVComponents     = null;//new uint[UnmanagedAssimp.aiMesh.AI_MAX_NUMBER_OF_TEXTURECOORDS];
 
-        /** <summary>The list of all faces for the mesh.</summary> */
+        /// <summary>
+        /// The list of all faces for the mesh.
+        /// </summary>
         private Face[] tFaces   = null;
 
-        /** <summary>Bones influencing the mesh</summary> */
+        /// <summary>
+        /// Bones influencing the mesh
+        /// </summary>
         private Bone[] tBones   = null;
 
-        /** <summary>Material index of the mesh. This is simply an index into the global material array.</summary> */
+        /// <summary>
+        /// Material index of the mesh. This is simply an index into the global material array.
+        /// </summary>
         private uint iMaterialIndex     = 0;
 
-        /** <summary>Bitwise combination of the kinds of primitives present in the mesh. The constant values are enumerated in <code>Face.Type</code></summary> */
+        /// <summary>
+        /// Bitwise combination of the kinds of primitives present in the mesh. The constant values are enumerated in <code>Face.Type</code>
+        /// </summary>
         private uint iPrimitiveTypes    = 0;
         #endregion
 
-        /**
-         * <summary>Constructor which builds a Mesh object from a pointer to an aiMesh structure.  As a user, you should not call this by hand.</summary>
-         * <remarks>This will copy the data inside the structure into managed memory.  It *DOES NOT* free the unmanaged memory.</remarks>
-         * @param aiMesh* A pointer to the face structure in the low level unmanaged wrapper.
-         */
+        /// <summary>
+        /// Constructor which builds a Mesh object from a pointer to an aiMesh structure.  As a user, you should not call this by hand.
+        /// <remarks>This will copy the data inside the structure into managed memory.  It *DOES NOT* free the unmanaged memory.</remarks>
+        /// </summary>
+        /// <param name="aiMesh*">A pointer to the face structure in the low level unmanaged wrapper.</param>
         unsafe internal Mesh(IntPtr p_aiMesh)
         {
             // Unmarshal our structure into (what will be for us, some temporary) managed memory.  This is naturally, automatically released when we exit the function.
@@ -151,229 +196,229 @@ namespace Assimp.ManagedAssimp
             }
         }
 
-	    /**
-	     * <summary>Check whether there are vertex positions in the model
-	     * <code>getPosition()</code> asserts this.</summary>
-         * @return true if vertex positions are available. Currently this is guaranteed to be <code>true</code>.
-	     */
+        /// <summary>
+        /// Check whether there are vertex positions in the model
+        /// <code>getPosition()</code> asserts this.
+        /// </summary>
+        /// <returns>true if vertex positions are available. Currently this is guaranteed to be <code>true</code>.</returns>
 	    public bool hasPositions()
         {
 		    return tVertices != null;
 	    }
 
-	    /**
-	     * <summary>Check whether there are normal vectors in the model
-	     * <code>getNormal()</code> asserts this.</summary>
-         * @return true if vertex normals are available.
-	     */
+        /// <summary>
+        /// Check whether there are normal vectors in the model
+        /// <code>getNormal()</code> asserts this.
+        /// </summary>
+        /// <returns>true if vertex normals are available.</returns>
 	    public bool hasNormals()
         {
 		    return tNormals != null;
 	    }
 
-	    /**
-	     * <summary>Check whether there are bones in the model. If the answer is
-	     * <code>true</code>, use <code>getBone()</code> to query them.</summary>
-	     * @return true if vertex normals are available.
-	     */
+        /// <summary>
+        /// Check whether there are bones in the model. If the answer is
+        /// <code>true</code>, use <code>getBone()</code> to query them.
+        /// </summary>
+        /// <returns>true if vertex normals are available.</returns>
 	    public bool hasBones()
         {
 		    return tBones != null;
 	    }
 
-	    /**
-	     * <summary>Check whether there are tangents/bitangents in the model If the answer is
-	     * <code>true</code>, use <code>getTangent()</code> and <code>getBitangent()</code> to query them.</summary>
-	     * @return true if vertex tangents and bitangents are available.
-	     */
+        /// <summary>
+        /// Check whether there are tangents/bitangents in the model If the answer is
+        /// <code>true</code>, use <code>getTangent()</code> and <code>getBitangent()</code> to query them.
+        /// </summary>
+        /// <returns>true if vertex tangents and bitangents are available.</returns>
 	    public bool hasTangentsAndBitangents()
         {
 		    return (tTangents != null) && (tBitangents != null);
 	    }
 
-	    /**
-	     * <summary>Check whether a given UV set is existing the model <code>getUV()</code> will assert this.</summary>
-         * @param iIndex UV coordinate set index
-	     * @return true the uv coordinate set is available.
-	     */
+        /// <summary>
+        /// Check whether a given UV set is existing the model <code>getUV()</code> will assert this.
+        /// </summary>
+        /// <param name="iIndex">UV coordinate set index</param>
+        /// <returns>true the uv coordinate set is available.</returns>
 	    public bool hasTextureCoords(int iIndex)
         {
 		    return iIndex < this.tTextures.Length && tTextures[iIndex] != null;
 	    }
 
-        /**
-         * <summary>Check whether a given vertex color set is existing the model
-         * <code>getColor()</code> will assert this.</summary>
-         * @param iIndex Vertex color set index
-         * @return true the vertex color set is available.
-         */
+        /// <summary>
+        /// Check whether a given vertex color set is existing the model
+        /// <code>getColor()</code> will assert this.
+        /// </summary>
+        /// <param name="iIndex">Vertex color set index</param>
+        /// <returns>true the vertex color set is available.</returns>
         public bool hasVertexColors(int iIndex)
         {
             return iIndex < this.tColors.Length && tColors[iIndex] != null;
 	    }
 
-        /**
-         * <summary>Check whether there are faces in the model.  If the answer is
-         * <code>true</code>, use <code>getTangent()</code> and <code>getBitangent()</code> to query them.</summary>
-         * @return true if faces are available.
-         */
+        /// <summary>
+        /// Check whether there are faces in the model.  If the answer is
+        /// <code>true</code>, use <code>getTangent()</code> and <code>getBitangent()</code> to query them.
+        /// </summary>
+        /// <returns>true if faces are available.</returns>
         public bool hasFaces()
         {
             return (tFaces != null) && (tFaces != null);
         }
 
-	    /**
-	     * <summary>Get the number of vertices in the model.</summary>
-         * @return Number of vertices in the model. This could be 0 in some extreme cases although loaders should filter such cases out.
-	     */
+        /// <summary>
+        /// Get the number of vertices in the model.
+        /// </summary>
+        /// <returns>Number of vertices in the model. This could be 0 in some extreme cases although loaders should filter such cases out.</returns>
 	    public int getNumVertices()
         {
 		    return tVertices.Length;
 	    }
 
-	    /**
-	     * <summary>Get the number of faces in the model.</summary>
-         * @return Number of faces in the model. This could be 0 in some extreme cases although loaders should filter such cases out
-	     */
+        /// <summary>
+        /// Get the number of faces in the model.
+        /// </summary>
+        /// <returns>Number of faces in the model. This could be 0 in some extreme cases although loaders should filter such cases out</returns>
 	    public int getNumFaces()
         {
 		    return tFaces.Length;
 	    }
 
-	    /**
-	     * <summary>Get the number of bones in the model</summary>
-         * @return Number of bones in the model.
-	     */
+        /// <summary>
+        /// Get the number of bones in the model
+        /// </summary>
+        /// <returns>Number of bones in the model.</returns>
 	    public int getNumBones()
         {
 		    return tBones.Length;
 	    }
 
-	    /**
-	     * <summary>Get the material index of the mesh.</summary>
-	     * @return Zero-based index into the global material array.
-	     */
+        /// <summary>
+        /// Get the material index of the mesh.
+        /// </summary>
+        /// <returns>Zero-based index into the global material array.</returns>
 	    public uint getMaterialIndex()
         {
 		    return this.iMaterialIndex;
 	    }
 
-	    /**
-	     * <summary>Get a bitwise combination of all types of primitives which are present in the mesh.</summary>
-	     */
+        /// <summary>
+        /// Get a bitwise combination of all types of primitives which are present in the mesh.
+        /// </summary>
 	    public uint getPrimitiveTypes()
         {
 		    return this.iPrimitiveTypes;
 	    }
 
-	    /**
-	     * <summary>Get a vertex position in the mesh.</summary>
-         * @param iIndex Zero-based index of the vertex
-         * @return An aiVector3D which contains our Normal.
-	     */
+        /// <summary>
+        /// Get a vertex position in the mesh.
+        /// </summary>
+        /// <param name="iIndex">Zero-based index of the vertex</param>
+        /// <returns>An aiVector3D which contains our Normal.</returns>
 	    public aiVector3D getPosition(int iIndex)
         {
 		    return this.tVertices[iIndex];
 	    }
 
-	    /**
-	     * <summary>Provides direct access to the vertex position array of the mesh. This is
-	     * the recommended way of accessing the data.</summary>
-	     * @return Array of aiVector3D, size is numverts.
-	     */
+        /// <summary>
+        /// Provides direct access to the vertex position array of the mesh. This is
+        /// the recommended way of accessing the data.
+        /// </summary>
+        /// <returns>Array of aiVector3D, size is numverts.</returns>
 	    public aiVector3D[] getPositionArray()
         {
 		    return this.tVertices;
 	    }
 
-	    /**
-	     * <summary>Get a vertex normal in the mesh.</summary>
-         * @param iIndex Zero-based index of the vertex
-         * @return An aiVector3D which contains our Normal.
-	     */
+        /// <summary>
+        /// Get a vertex normal in the mesh.
+        /// </summary>
+        /// <param name="iIndex">Zero-based index of the vertex</param>
+        /// <returns>An aiVector3D which contains our Normal.</returns>
 	    public aiVector3D getNormal(int iIndex)
         {
 		    return this.tNormals[iIndex];
 	    }
 
-	    /**
-	     * <summary>Provides direct access to the vertex normal array of the mesh. This is
-	     * the recommended way of accessing the data.</summary>
-	     * @return Array of aiVector3D, size is numverts.
-	     */
+        /// <summary>
+        /// Provides direct access to the vertex normal array of the mesh. This is
+        /// the recommended way of accessing the data.
+        /// </summary>
+        /// <returns>Array of aiVector3D, size is numverts.</returns>
 	    public aiVector3D[] getNormalArray()
         {
 		    return this.tNormals;
 	    }
 
-	    /**
-	     * <summary>Get a vertex tangent in the mesh.</summary>
-         * @param iIndex Zero-based index of the vertex
-         * @return An aiVector3D which contains our Tangent.
-	     */
+        /// <summary>
+        /// Get a vertex tangent in the mesh.
+        /// </summary>
+        /// <param name="iIndex">Zero-based index of the vertex</param>
+        /// <returns>An aiVector3D which contains our Tangent.</returns>
 	    public aiVector3D getTangent(int iIndex)
         {
 		    return this.tTangents[iIndex];
 	    }
 
-	    /**
-	     * <summary>Provides direct access to the vertex tangent array of the mesh. This is
-	     * the recommended way of accessing the data.</summary>
-	     * @return Array of aiVector3D, size is numverts.
-	     */
+        /// <summary>
+        /// Provides direct access to the vertex tangent array of the mesh. This is
+        /// the recommended way of accessing the data.
+        /// </summary>
+        /// <returns>Array of aiVector3D, size is numverts.</returns>
 	    public aiVector3D[] getTangentArray()
         {
 		    return this.tTangents;
 	    }
 
-	    /**
-	     * <summary>Get a vertex bitangent in the mesh.</summary>
-         * @param iIndex Zero-based index of the vertex
-         * @return An aiVector3D which contains our BiTangent.
-	     */
+        /// <summary>
+        /// Get a vertex bitangent in the mesh.
+        /// </summary>
+        /// <param name="iIndex">Zero-based index of the vertex</param>
+        /// <returns>An aiVector3D which contains our BiTangent.</returns>
 	    public aiVector3D getBitangent(int iIndex)
         {
 		    return this.tBitangents[iIndex];
 	    }
 
-	    /**
-	     * <summary>Provides direct access to the vertex bitangent array of the mesh. This is
-	     * the recommended way of accessing the data.</summary>
-	     * @return Array of aiVector3D, size is numverts.
-	     */
+        /// <summary>
+        /// Provides direct access to the vertex bitangent array of the mesh. This is
+        /// the recommended way of accessing the data.
+        /// </summary>
+        /// <returns>Array of aiVector3D, size is numverts.</returns>
 	    public aiVector3D[] getBiTangentArray()
         {
 		    return this.tBitangents;
 	    }
 
-	    /**
-	     * <summary>Get a vertex texture coordinate in the mesh</summary>
-	     * @param iChannel Texture coordinate channel.
-	     * @param iIndex Zero-based index of the vertex
-	     * @return An aiVector3D which contains our texture coordinate.
-	     */
+        /// <summary>
+        /// Get a vertex texture coordinate in the mesh
+        /// </summary>
+        /// <param name="iChannel">Texture coordinate channel.</param>
+        /// <param name="iIndex">Zero-based index of the vertex</param>
+        /// <returns>An aiVector3D which contains our texture coordinate.</returns>
 	    public aiVector3D getTextureCoordinate(int iChannel, int iIndex)
         {
             return tTextures[iChannel][iIndex];
 	    }
 
-	    /**
-	     * <summary>Provides direct access to a texture coordinate channel of the mesh This
-	     * is the recommended way of accessing the data.</summary>
-         * @param iChannel The texture coordinate channel.  Usually just the one.
-	     * @return Array of aiVector3D, size is numverts.
-	     */
+        /// <summary>
+        /// Provides direct access to a texture coordinate channel of the mesh This
+        /// is the recommended way of accessing the data.
+        /// </summary>
+        /// <param name="iChannel">The texture coordinate channel.  Usually just the one.</param>
+        /// <returns>Array of aiVector3D, size is numverts.</returns>
 	    public aiVector3D[] getTextureCoordinateArray(int iChannel)
         {
 		    return tTextures[iChannel];
 	    }
 
-	    /**
-	     * <summary>Get a vertex color as an unsigned integer in the mesh.</summary>
-	     * @param channel Vertex color channel.
-	     * @param iIndex Zero-based index of the vertex.
-	     * @return Vertex color value packed an an integer in ARGB format.
-	     */
+        /// <summary>
+        /// Get a vertex color as an unsigned integer in the mesh.
+        /// </summary>
+        /// <param name="channel">Vertex color channel.</param>
+        /// <param name="iIndex">Zero-based index of the vertex.</param>
+        /// <returns>Vertex color value packed an an integer in ARGB format.</returns>
 	    public uint getVertexColorUint(int iChannel, int iIndex)
         {
             uint iOut = 0x00000000;
@@ -387,61 +432,61 @@ namespace Assimp.ManagedAssimp
             return iOut;
 	    }
 
-	    /**
-	     * <summary>Get a vertex color in the mesh.</summary>
-	     * @param iChannel Vertex color channel
-	     * @param iIndex Zero-based index of the vertex.
-         * @return An aiColour4D which contains our colour.
-	     */
+        /// <summary>
+        /// Get a vertex color in the mesh.
+        /// </summary>
+        /// <param name="iChannel">Vertex color channel</param>
+        /// <param name="iIndex">Zero-based index of the vertex.</param>
+        /// <returns>An aiColour4D which contains our colour.</returns>
 	    public aiColor4D getVertexColor(int iChannel, int iIndex)
         {
             return tColors[iChannel][iIndex];
 	    }
 
-	    /**
-	     * <summary>Provides direct access to the vertex bitangent array of the mesh This is
-	     * the recommended way of accessing the data.</summary>
-         * @param iChannel The colour chanel we want the array of.
-	     * @return Array of aiColor4D, size is the same as the number of verts.
-	     */
+        /// <summary>
+        /// Provides direct access to the vertex bitangent array of the mesh This is
+        /// the recommended way of accessing the data.
+        /// </summary>
+        /// <param name="iChannel">The colour chanel we want the array of.</param>
+        /// <returns>Array of aiColor4D, size is the same as the number of verts.</returns>
 	    public aiColor4D[] getVertexColorArray(int iChannel)
         {
 		    return tColors[iChannel];
 	    }
 
-	    /**
-	     * <summary>Get a single face of the mesh.</summary>
-	     * @param iIndex Index of the face. Must be smaller than the value returned by <code>getNumFaces()</code>
-	     */
+        /// <summary>
+        /// Get a single face of the mesh.
+        /// </summary>
+        /// <param name="iIndex">Index of the face. Must be smaller than the value returned by <code>getNumFaces()</code></param>
 	    public Face getFace(int iIndex)
         {
 		    return this.tFaces[iIndex];
 	    }
 
-	    /**
-	     * <summary>Provides direct access to the face array of the mesh This is the
-	     * recommended way of accessing the data.</summary>
-	     * @return An array of faces which make up this mesh.
-	     */
+        /// <summary>
+        /// Provides direct access to the face array of the mesh This is the
+        /// recommended way of accessing the data.
+        /// </summary>
+        /// <returns>An array of faces which make up this mesh.</returns>
 	    public Face[] getFaceArray()
         {
 		    return this.tFaces;
 	    }
 
-	    /**
-	     * <summary>Provides access to the array of all bones influencing this mesh.</summary>
-	     * @return Bone array
-	     */
+        /// <summary>
+        /// Provides access to the array of all bones influencing this mesh.
+        /// </summary>
+        /// <returns>Bone array</returns>
 	    public Bone[] getBonesArray()
         {
 		    return this.tBones;
 	    }
 
-	    /**
-	     * <summary>Get a bone influencing the mesh.</summary>
-	     * @param i Index of the bone.
-	     * @return Bone
-	     */
+        /// <summary>
+        /// Get a bone influencing the mesh.
+        /// </summary>
+        /// <param name="i">Index of the bone.</param>
+        /// <returns>Bone</returns>
 	    public Bone getBone(int i)
         {
 		    return this.tBones[i];
