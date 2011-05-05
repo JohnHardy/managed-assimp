@@ -233,7 +233,7 @@ namespace Assimp.ManagedAssimp
 
             foreach (Node oNode in tChildren)
             {
-                if (this.sName == oNode.getName())
+                if (sName == oNode.getName())
                     return oNode;
             }
 
