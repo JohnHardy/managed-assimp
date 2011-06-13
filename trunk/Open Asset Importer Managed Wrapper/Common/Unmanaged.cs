@@ -775,7 +775,12 @@ namespace Assimp.ManagedAssimp.Unmanaged
             /// The material used by this mesh.  A mesh does use only a single material. If an imported model uses multiple materials, the import splits up the mesh. Use this value as index into the scene's material list.
             /// </summary>
             public uint mMaterialIndex;
-
+			
+			/// <summary>
+			/// The name of the mesh. May be empty.
+			/// </summary>
+			public aiString mName;
+			
             /// <summary>
             /// The maximum number of colour sets a mesh can have.
             /// </summary>
