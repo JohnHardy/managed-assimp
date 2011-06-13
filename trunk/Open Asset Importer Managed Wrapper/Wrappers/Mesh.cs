@@ -63,6 +63,11 @@ namespace Assimp.ManagedAssimp
         #endregion
 
         #region Properties
+		/// <summary>
+		/// The name of the mesh. May be empty.
+		/// </summary>
+		private String sName = null;
+		
         /// <summary>
         /// Contains normal vectors in a continuous float array, xyz order. Can't be <code>null</code>
         /// </summary>
@@ -132,7 +137,10 @@ namespace Assimp.ManagedAssimp
             // Copy over the nice, simple value types into managed memory.  Value types copy the entire structure rather than just the pointer to it.
             this.iPrimitiveTypes    = tMesh.mPrimitiveTypes;
             this.iMaterialIndex     = tMesh.mMaterialIndex;
-
+			
+			// Note that with strings, prepending an empty string "" forces a copy.
+			this.sName = "" + tMesh.mName.data;
+			
             // Marshal the arrays of vertices, 
             tVertices   = UnmanagedAssimp.MarshalArray<aiVector3D>(new IntPtr(tMesh.mVertices),     tMesh.mNumVertices);
             tNormals    = UnmanagedAssimp.MarshalArray<aiVector3D>(new IntPtr(tMesh.mNormals),      tMesh.mNumVertices);
@@ -195,6 +203,7 @@ namespace Assimp.ManagedAssimp
                 pPtr = new IntPtr(pPtr.ToInt64() + iStride);
             }
         }
+
 
         /// <summary>
         /// Check whether there are vertex positions in the model
@@ -266,7 +275,16 @@ namespace Assimp.ManagedAssimp
         {
             return (tFaces != null) && (tFaces != null);
         }
-
+		
+		/// <summary>
+		/// Get the name of this mesh.
+		/// </summary>
+		/// <returns>The name of this mesh. May be empty.</returns>
+		public String getName()
+		{
+			return sName;
+		}
+		
         /// <summary>
         /// Get the number of vertices in the model.
         /// </summary>
