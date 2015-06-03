@@ -19,16 +19,13 @@ Here is an image of the sample application provided:
 #Video Usage
 Here is a video of some models loaded using the wrapper:
 
-
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=gLVZcVw5LlU
 " target="_blank"><img src="http://img.youtube.com/vi/gLVZcVw5LlU/0.jpg" 
 alt="Watch a preview" width="640" height="480" border="10" /></a>
 
-
-
 Thanks to Mark Ward for his measure cube model (included).
 
-== FAQ ==
+#FAQ 
 *Q:* I get a PInvokeStackImbalance when I run it with the debugger attached.
 
 *A:* This is normal and can be disabled in Debug > Exceptions > Managed Debugging Assistants > Un-check PInvokeStackImbalance.  The [http://msdn.microsoft.com/en-us/library/0htdy0k3.aspx PInvokeStackImbalance] MDA is activated when the CLR detects that the stack depth after a P/Invoke call does not match the expected stack depth.
